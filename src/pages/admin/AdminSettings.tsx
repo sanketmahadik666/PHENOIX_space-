@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Settings, User, Bell, Palette, Shield } from "lucide-react";
 import { toast } from "sonner";
 
+import { ContactSettingsSection } from "@/components/admin/ContactSettingsSection";
+
 const AdminSettings = () => {
   const handleSave = () => {
     toast.success("Settings saved successfully!");
@@ -111,6 +113,9 @@ const AdminSettings = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Contact Methods */}
+        <ContactSettingsSection />
 
         {/* Save Button */}
         <div className="flex justify-end">

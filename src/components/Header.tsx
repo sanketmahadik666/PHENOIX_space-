@@ -13,8 +13,11 @@ const navLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
+import { ContactModal } from "@/components/ContactModal";
+
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md shadow-soft">
@@ -55,7 +58,7 @@ export const Header = () => {
                 Admin
               </Button>
             </Link>
-            <Button variant="nav" size="sm">
+            <Button variant="nav" size="sm" onClick={() => setIsContactModalOpen(true)}>
               Reach Us
             </Button>
           </div>
@@ -90,13 +93,21 @@ export const Header = () => {
                   {link.name}
                 </Link>
               ))}
-              <Button variant="nav" className="mt-4">
+              <Button variant="nav" className="mt-4" onClick={() => {
+                setIsMenuOpen(false);
+                setIsContactModalOpen(true);
+              }}>
                 Reach Us
               </Button>
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ContactModal 
+        open={isContactModalOpen} 
+        onOpenChange={setIsContactModalOpen} 
+      />
     </header>
   );
 };
