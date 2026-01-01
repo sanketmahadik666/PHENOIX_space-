@@ -13,18 +13,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { mockAnnouncements, Announcement } from "@/data/mockAdminData";
 import { Plus, Edit, Trash2, Megaphone, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
+import {
+  useAnnouncements,
+  useAddAnnouncement,
+  useUpdateAnnouncement,
+  useDeleteAnnouncement,
+} from "@/hooks/useSupabaseQuery";
+
+interface Announcement {
+  id: string;
+  text: string;
+  link_url: string;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+}
 
 const AdminAnnouncements = () => {
-  const [announcements, setAnnouncements] = useState<Announcement[]>(mockAnnouncements);
+  const { data: announcements = [], isLoading } = useAnnouncements(false);
+  const addAnnouncementMutation = useAddAnnouncement();
+  const updateAnnouncementMutation = useUpdateAnnouncement();
+  const deleteAnnouncementMutation = useDeleteAnnouncement();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [formData, setFormData] = useState({
     text: "",
-    link: "",
-    isActive: true,
+    link_url: "",
+    is_active: true,
   });
 
   const handleOpenDialog = (announcement?: Announcement) => {
@@ -32,59 +50,66 @@ const AdminAnnouncements = () => {
       setEditingAnnouncement(announcement);
       setFormData({
         text: announcement.text,
-        link: announcement.link,
-        isActive: announcement.isActive,
+        link_url: announcement.link_url || "",
+        is_active: announcement.is_active,
       });
     } else {
       setEditingAnnouncement(null);
       setFormData({
         text: "",
-        link: "",
-        isActive: true,
+        link_url: "",
+        is_active: true,
       });
     }
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingAnnouncement) {
-      setAnnouncements(
-        announcements.map((a) =>
-          a.id === editingAnnouncement.id
-            ? { ...a, ...formData }
-            : a
-        )
-      );
+      await updateAnnouncementMutation.mutateAsync({
+        id: editingAnnouncement.id,
+        updates: formData,
+      });
       toast.success("Announcement updated successfully!");
     } else {
-      const newAnnouncement: Announcement = {
-        id: (announcements.length + 1).toString(),
+      await addAnnouncementMutation.mutateAsync({
         ...formData,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setAnnouncements([newAnnouncement, ...announcements]);
+        display_order: announcements.length + 1,
+      });
       toast.success("Announcement added successfully!");
     }
-    
+
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setAnnouncements(announcements.filter((a) => a.id !== id));
+  const handleDelete = async (id: string) => {
+    await deleteAnnouncementMutation.mutateAsync(id);
     toast.success("Announcement deleted successfully!");
   };
 
-  const toggleActive = (id: string) => {
-    setAnnouncements(
-      announcements.map((a) =>
-        a.id === id ? { ...a, isActive: !a.isActive } : a
-      )
-    );
+  const toggleActive = async (id: string) => {
+    const announcement = announcements.find((a) => a.id === id);
+    if (announcement) {
+      await updateAnnouncementMutation.mutateAsync({
+        id,
+        updates: { is_active: !announcement.is_active },
+      });
+    }
   };
 
-  const activeCount = announcements.filter((a) => a.isActive).length;
+  const activeCount = announcements.filter((a) => a.is_active).length;
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading announcements...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -126,8 +151,8 @@ const AdminAnnouncements = () => {
                   <Label htmlFor="link">Link URL (optional)</Label>
                   <Input
                     id="link"
-                    value={formData.link}
-                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                    value={formData.link_url}
+                    onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
                     placeholder="https://..."
                   />
                 </div>
@@ -136,8 +161,8 @@ const AdminAnnouncements = () => {
                   <div className="flex items-center gap-2">
                     <Switch
                       id="active"
-                      checked={formData.isActive}
-                      onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                      checked={formData.is_active}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                     />
                     <Label htmlFor="active">Show on website</Label>
                   </div>
@@ -189,7 +214,7 @@ const AdminAnnouncements = () => {
             <div className="bg-primary rounded-lg p-3 overflow-hidden">
               <div className="flex gap-8 animate-marquee whitespace-nowrap">
                 {announcements
-                  .filter((a) => a.isActive)
+                  .filter((a) => a.is_active)
                   .map((item) => (
                     <div key={item.id} className="flex items-center gap-4">
                       <span className="text-sm text-primary-foreground">{item.text}</span>
@@ -220,19 +245,19 @@ const AdminAnnouncements = () => {
                 >
                   <div className="flex-1 min-w-0 pr-4">
                     <p className="font-medium text-sm truncate">{announcement.text}</p>
-                    {announcement.link && (
+                    {announcement.link_url && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                         <LinkIcon className="w-3 h-3" />
-                        <span className="truncate">{announcement.link}</span>
+                        <span className="truncate">{announcement.link_url}</span>
                       </div>
                     )}
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant={announcement.isActive ? "default" : "secondary"}>
-                      {announcement.isActive ? "Active" : "Inactive"}
+                    <Badge variant={announcement.is_active ? "default" : "secondary"}>
+                      {announcement.is_active ? "Active" : "Inactive"}
                     </Badge>
                     <Switch
-                      checked={announcement.isActive}
+                      checked={announcement.is_active}
                       onCheckedChange={() => toggleActive(announcement.id)}
                     />
                     <Button

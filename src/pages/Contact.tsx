@@ -1,4 +1,5 @@
- import { motion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateEnquiry } from "@/hooks/useSupabaseQuery";
 
 const contactInfo = [
   {
@@ -32,13 +34,48 @@ const contactInfo = [
 
 const Contact = () => {
   const { toast } = useToast();
+  const createEnquiryMutation = useCreateEnquiry();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    course: "",
+    message: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
+
+    try {
+      await createEnquiryMutation.mutateAsync({
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        phone: formData.phone,
+        interested_course: formData.course,
+        message: formData.message,
+        status: "pending",
+      });
+
+      toast({
+        title: "Message Sent!",
+        description: "We'll get back to you within 24 hours.",
+      });
+
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        course: "",
+        message: "",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+      });
+    }
   };
 
   return (
@@ -80,32 +117,67 @@ const Contact = () => {
                       <label className="block text-sm font-medium text-foreground mb-2">
                         First Name
                       </label>
-                      <Input placeholder="John" required />
+                      <Input
+                        placeholder="John"
+                        required
+                        value={formData.firstName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, firstName: e.target.value })
+                        }
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
                         Last Name
                       </label>
-                      <Input placeholder="Doe" required />
+                      <Input
+                        placeholder="Doe"
+                        required
+                        value={formData.lastName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, lastName: e.target.value })
+                        }
+                      />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Email
                     </label>
-                    <Input type="email" placeholder="john@example.com" required />
+                    <Input
+                      type="email"
+                      placeholder="john@example.com"
+                      required
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Phone Number
                     </label>
-                    <Input type="tel" placeholder="+971 50 123 4567" />
+                    <Input
+                      type="tel"
+                      placeholder="+971 50 123 4567"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Course of Interest
                     </label>
-                    <Input placeholder="e.g., Digital Marketing, CMA" />
+                    <Input
+                      placeholder="e.g., Digital Marketing, CMA"
+                      value={formData.course}
+                      onChange={(e) =>
+                        setFormData({ ...formData, course: e.target.value })
+                      }
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -115,10 +187,19 @@ const Contact = () => {
                       placeholder="Tell us about your learning goals..."
                       rows={4}
                       required
+                      value={formData.message}
+                      onChange={(e) =>
+                        setFormData({ ...formData, message: e.target.value })
+                      }
                     />
                   </div>
-                  <Button variant="hero" size="lg" className="w-full">
-                    Send Message
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    className="w-full"
+                    disabled={createEnquiryMutation.isPending}
+                  >
+                    {createEnquiryMutation.isPending ? "Sending..." : "Send Message"}
                     <Send className="w-4 h-4" />
                   </Button>
                 </form>

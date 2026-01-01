@@ -21,9 +21,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { mockCourses, Course } from "@/data/mockAdminData";
 import { Plus, Edit, Trash2, Search, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import {
+  useCoursesAdmin,
+  useAddCourse,
+  useUpdateCourse,
+  useDeleteCourse,
+} from "@/hooks/useSupabaseQuery";
+
+interface Course {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  duration: string;
+  image_url: string;
+  description: string;
+  is_active: boolean;
+  registrations_count: number;
+}
 
 const categories = [
   "BIM & CAD",
@@ -35,7 +52,11 @@ const categories = [
 ];
 
 const AdminCourses = () => {
-  const [courses, setCourses] = useState<Course[]>(mockCourses);
+  const { data: courses = [], isLoading } = useCoursesAdmin();
+  const addCourseMutation = useAddCourse();
+  const updateCourseMutation = useUpdateCourse();
+  const deleteCourseMutation = useDeleteCourse();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
@@ -45,7 +66,7 @@ const AdminCourses = () => {
     price: "",
     duration: "",
     description: "",
-    isActive: true,
+    is_active: true,
   });
 
   const filteredCourses = courses.filter(
@@ -63,7 +84,7 @@ const AdminCourses = () => {
         price: course.price.toString(),
         duration: course.duration,
         description: course.description,
-        isActive: course.isActive,
+        is_active: course.is_active,
       });
     } else {
       setEditingCourse(null);
@@ -73,55 +94,65 @@ const AdminCourses = () => {
         price: "",
         duration: "",
         description: "",
-        isActive: true,
+        is_active: true,
       });
     }
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    const courseData = {
+      name: formData.name,
+      category: formData.category,
+      price: parseFloat(formData.price),
+      duration: formData.duration,
+      description: formData.description,
+      is_active: formData.is_active,
+    };
+
     if (editingCourse) {
-      setCourses(
-        courses.map((c) =>
-          c.id === editingCourse.id
-            ? {
-                ...c,
-                ...formData,
-                price: parseFloat(formData.price),
-              }
-            : c
-        )
-      );
+      await updateCourseMutation.mutateAsync({
+        id: editingCourse.id,
+        updates: courseData,
+      });
       toast.success("Course updated successfully!");
     } else {
-      const newCourse: Course = {
-        id: (courses.length + 1).toString(),
-        ...formData,
-        price: parseFloat(formData.price),
-        image: "/placeholder.svg",
-        registrations: 0,
-      };
-      setCourses([...courses, newCourse]);
+      await addCourseMutation.mutateAsync({
+        ...courseData,
+        image_url: "/placeholder.svg",
+      });
       toast.success("Course added successfully!");
     }
-    
+
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setCourses(courses.filter((c) => c.id !== id));
+  const handleDelete = async (id: string) => {
+    await deleteCourseMutation.mutateAsync(id);
     toast.success("Course deleted successfully!");
   };
 
-  const toggleActive = (id: string) => {
-    setCourses(
-      courses.map((c) =>
-        c.id === id ? { ...c, isActive: !c.isActive } : c
-      )
-    );
+  const toggleActive = async (id: string) => {
+    const course = courses.find((c) => c.id === id);
+    if (course) {
+      await updateCourseMutation.mutateAsync({
+        id,
+        updates: { is_active: !course.is_active },
+      });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading courses...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -216,8 +247,8 @@ const AdminCourses = () => {
                   <div className="flex items-center gap-2">
                     <Switch
                       id="active"
-                      checked={formData.isActive}
-                      onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                      checked={formData.is_active}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                     />
                     <Label htmlFor="active">Active</Label>
                   </div>
@@ -244,7 +275,7 @@ const AdminCourses = () => {
         {/* Courses Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCourses.map((course) => (
-            <Card key={course.id} className={`${!course.isActive ? "opacity-60" : ""}`}>
+            <Card key={course.id} className={`${!course.is_active ? "opacity-60" : ""}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -252,7 +283,7 @@ const AdminCourses = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={course.isActive}
+                      checked={course.is_active}
                       onCheckedChange={() => toggleActive(course.id)}
                     />
                   </div>

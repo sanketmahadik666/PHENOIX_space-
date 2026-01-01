@@ -11,9 +11,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockEnquiries, Enquiry } from "@/data/mockAdminData";
 import { Search, Phone, Mail, MessageSquare, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { useEnquiries, useUpdateEnquiry } from "@/hooks/useSupabaseQuery";
+
+interface Enquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  interested_course: string;
+  message: string;
+  inquiry_date: string;
+  status: "pending" | "contacted" | "converted" | "closed";
+}
 
 const statusOptions = [
   { value: "all", label: "All Status" },
@@ -39,7 +50,8 @@ const getStatusColor = (status: string) => {
 };
 
 const AdminEnquiries = () => {
-  const [enquiries, setEnquiries] = useState<Enquiry[]>(mockEnquiries);
+  const { data: enquiries = [], isLoading } = useEnquiries();
+  const updateEnquiryMutation = useUpdateEnquiry();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -47,21 +59,30 @@ const AdminEnquiries = () => {
     const matchesSearch =
       enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      enquiry.course.toLowerCase().includes(searchTerm.toLowerCase());
+      enquiry.interested_course.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || enquiry.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const updateStatus = (id: string, newStatus: Enquiry["status"]) => {
-    setEnquiries(
-      enquiries.map((e) =>
-        e.id === id ? { ...e, status: newStatus } : e
-      )
-    );
+  const updateStatus = async (id: string, newStatus: Enquiry["status"]) => {
+    await updateEnquiryMutation.mutateAsync({
+      id,
+      updates: { status: newStatus },
+    });
     toast.success(`Enquiry marked as ${newStatus}`);
   };
 
   const pendingCount = enquiries.filter((e) => e.status === "pending").length;
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading enquiries...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -120,7 +141,7 @@ const AdminEnquiries = () => {
                       <div>
                         <h3 className="font-semibold">{enquiry.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          Interested in: <span className="font-medium text-foreground">{enquiry.course}</span>
+                          Interested in: <span className="font-medium text-foreground">{enquiry.interested_course}</span>
                         </p>
                       </div>
                     </div>
@@ -136,7 +157,7 @@ const AdminEnquiries = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        {new Date(enquiry.date).toLocaleDateString()}
+                        {new Date(enquiry.inquiry_date).toLocaleDateString()}
                       </div>
                     </div>
 
