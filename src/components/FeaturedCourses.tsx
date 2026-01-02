@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,7 @@ const courses = [
   },
 ];
 
-export const FeaturedCourses = () => {
+export const FeaturedCourses = memo(() => {
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -109,6 +110,8 @@ export const FeaturedCourses = () => {
                       src={course.image}
                       alt={course.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                      decoding="async"
                     />
                     {course.isNew && (
                       <span className="absolute top-4 left-4 px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
@@ -146,4 +149,6 @@ export const FeaturedCourses = () => {
       </div>
     </section>
   );
-};
+});
+
+FeaturedCourses.displayName = "FeaturedCourses";

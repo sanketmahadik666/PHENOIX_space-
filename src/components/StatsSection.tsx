@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, Award, Building2, Users } from "lucide-react";
 
@@ -8,7 +9,7 @@ const stats = [
   { icon: Users, value: "50+", label: "Expert Trainers" },
 ];
 
-export const StatsSection = () => {
+export const StatsSection = memo(() => {
   return (
     <section className="py-20 gradient-primary relative overflow-hidden">
       {/* Background Pattern */}
@@ -56,4 +57,6 @@ export const StatsSection = () => {
       </div>
     </section>
   );
-};
+});
+
+StatsSection.displayName = "StatsSection";

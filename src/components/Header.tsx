@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Search, Shield } from "lucide-react";
@@ -15,7 +15,7 @@ const navLinks = [
 
 import { ContactModal } from "@/components/ContactModal";
 
-export const Header = () => {
+export const Header = memo(() => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
@@ -110,4 +110,6 @@ export const Header = () => {
       />
     </header>
   );
-};
+});
+
+Header.displayName = "Header";

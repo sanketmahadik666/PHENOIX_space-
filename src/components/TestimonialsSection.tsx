@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Quote, Star } from "lucide-react";
 
@@ -31,7 +32,7 @@ const testimonials = [
   },
 ];
 
-export const TestimonialsSection = () => {
+export const TestimonialsSection = memo(() => {
   return (
     <section className="py-20 bg-card">
       <div className="container mx-auto px-4">
@@ -74,6 +75,8 @@ export const TestimonialsSection = () => {
                   src={testimonial.image}
                   alt={testimonial.name}
                   className="w-12 h-12 rounded-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div>
                   <div className="font-semibold text-foreground">{testimonial.name}</div>
@@ -88,4 +91,6 @@ export const TestimonialsSection = () => {
       </div>
     </section>
   );
-};
+});
+
+TestimonialsSection.displayName = "TestimonialsSection";

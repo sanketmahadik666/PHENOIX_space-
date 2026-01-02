@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { 
   Facebook, 
@@ -37,7 +38,7 @@ const socialLinks = [
   { icon: Twitter, href: "#", label: "Twitter" },
 ];
 
-export const Footer = () => {
+export const Footer = memo(() => {
   return (
     <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4 py-16">
@@ -143,4 +144,6 @@ export const Footer = () => {
       </div>
     </footer>
   );
-};
+});
+
+Footer.displayName = "Footer";
