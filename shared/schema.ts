@@ -21,7 +21,7 @@ export const enquiries = pgTable("enquiries", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  courseId: integer("course_id").references(() => courses.id),
+  courseId: integer("course_id"),
   message: text("message").notNull(),
   status: text("status").default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
