@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,7 +21,7 @@ interface Enquiry {
   phone: string;
   interested_course: string;
   message: string;
-  inquiry_date: string;
+  enquiry_date: string;
   status: "pending" | "contacted" | "converted" | "closed";
 }
 
@@ -157,7 +156,7 @@ const AdminEnquiries = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        {new Date(enquiry.inquiry_date).toLocaleDateString()}
+                        {new Date(enquiry.enquiry_date).toLocaleDateString()}
                       </div>
                     </div>
 

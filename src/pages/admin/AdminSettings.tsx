@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Settings, User, Bell, Palette, Shield } from "lucide-react";
+import { User, Bell, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 import { ContactSettingsSection } from "@/components/admin/ContactSettingsSection";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown, Search, Shield } from "lucide-react";
+import { Menu, X, Search, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -49,7 +49,7 @@ export const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <button className="p-2 rounded-lg hover:bg-secondary transition-colors">
+            <button className="p-2 rounded-lg hover:bg-secondary transition-colors" aria-label="Search">
               <Search className="w-5 h-5 text-muted-foreground" />
             </button>
             <Link to="/admin/login">

@@ -39,7 +39,7 @@ interface Course {
   image_url: string;
   description: string;
   is_active: boolean;
-  registrations_count: number;
+  batches_count: number;
 }
 
 const categories = [

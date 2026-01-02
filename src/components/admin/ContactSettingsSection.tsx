@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Phone, Trash2, Plus, Eye, EyeOff } from "lucide-react";
 import {
   useContactSettings,
