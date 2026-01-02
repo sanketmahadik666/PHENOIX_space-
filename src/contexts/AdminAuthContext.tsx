@@ -28,7 +28,7 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (session?.user) {
+        if (session?.user && session.user.email) {
           // Fetch admin user details from admin_users table
           const { data: adminData, error } = await supabase
             .from("admin_users")
