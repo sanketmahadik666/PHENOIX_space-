@@ -12,7 +12,7 @@ export const AnnouncementBar = () => {
     <div className="bg-primary overflow-hidden">
       <div className="relative flex py-2">
         <motion.div
-          className="flex gap-8 whitespace-nowrap"
+          className="flex gap-8 whitespace-nowrap will-change-transform"
           animate={{ x: [0, -1000] }}
           transition={{
             duration: 20,
