@@ -212,7 +212,7 @@ const Contact = () => {
                 transition={{ delay: 0.1 }}
               >
                 <div className="grid gap-6">
-                  {contactInfo.map((item, index) => (
+                  {contactInfo.map((item) => (
                     <div
                       key={item.title}
                       className="flex gap-4 p-6 bg-card rounded-xl shadow-soft hover:shadow-hover transition-all duration-300"
