@@ -13,7 +13,7 @@ export const courses = pgTable("courses", {
 });
 
 export const insertCourseSchema = createInsertSchema(courses).omit({ id: true });
-export type InsertCourse = z.infer<typeof insertCourseSchema>;
+export type InsertCourse = typeof insertCourseSchema._type;
 export type Course = typeof courses.$inferSelect;
 
 export const enquiries = pgTable("enquiries", {
@@ -28,5 +28,5 @@ export const enquiries = pgTable("enquiries", {
 });
 
 export const insertEnquirySchema = createInsertSchema(enquiries).omit({ id: true, createdAt: true });
-export type InsertEnquiry = z.infer<typeof insertEnquirySchema>;
+export type InsertEnquiry = typeof insertEnquirySchema._type;
 export type Enquiry = typeof enquiries.$inferSelect;
