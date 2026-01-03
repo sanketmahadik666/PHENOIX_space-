@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { Loader2, ArrowRight } from "lucide-react";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, Variants } from "framer-motion";
 import Drift from "drift-zoom";
 
 const AdminLogin = () => {
@@ -93,7 +93,7 @@ const AdminLogin = () => {
     }
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -105,14 +105,14 @@ const AdminLogin = () => {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 0, opacity: 0 }, // Removed y: 30 (No bottom to up)
     visible: {
       y: 0,
       opacity: 1,
       transition: {
         duration: 0.8,
-        ease: [0.22, 1, 0.36, 1],
+        ease: [0.22, 1, 0.36, 1] as any, // Cast to any to bypass strict Easing type
       },
     },
   };
@@ -157,10 +157,6 @@ const AdminLogin = () => {
           <div 
             ref={paneRef}
             className="absolute inset-0 z-20 pointer-events-none opacity-0 transition-opacity duration-500 bg-white" // Smoother fade (500ms)
-            style={{ 
-                /* Ensures the pane fills the container and sits on top */ 
-                /* Drift generates the zoomed image inside this div */
-            }} 
           >
             {/* Drift will inject the zoomed image here */}
           </div>
@@ -252,7 +248,6 @@ const AdminLogin = () => {
                             type="submit" 
                             disabled={isLoading}
                             className="w-full h-16 bg-slate-900 hover:bg-opacity-90 text-white rounded-full text-lg font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 relative overflow-hidden"
-                            style={{ transitionDuration: '300ms' }}
                         >
                             {isLoading ? (
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />

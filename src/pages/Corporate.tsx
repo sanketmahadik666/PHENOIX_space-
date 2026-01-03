@@ -151,25 +151,32 @@ const Corporate = () => {
                 <form className="space-y-4">
                   <input
                     type="text"
+                    aria-label="Company Name"
                     placeholder="Company Name"
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                   <input
                     type="text"
+                    aria-label="Contact Person"
                     placeholder="Contact Person"
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                   <input
                     type="email"
+                    aria-label="Email Address"
                     placeholder="Email Address"
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                   <input
                     type="tel"
+                    aria-label="Phone Number"
                     placeholder="Phone Number"
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
-                  <select className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent text-muted-foreground">
+                  <select 
+                    aria-label="Number of Employees"
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent text-muted-foreground"
+                  >
                     <option>Number of Employees</option>
                     <option>1-10</option>
                     <option>11-50</option>
@@ -177,6 +184,7 @@ const Corporate = () => {
                     <option>200+</option>
                   </select>
                   <textarea
+                    aria-label="Training Requirements"
                     placeholder="Training Requirements"
                     rows={4}
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
