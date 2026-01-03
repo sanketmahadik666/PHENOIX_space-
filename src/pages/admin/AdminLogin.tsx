@@ -78,7 +78,7 @@ const AdminLogin = () => {
   };
 
   const itemVariants = {
-    hidden: { y: 0, opacity: 0 }, // Removed y: 30 (Bottom to up)
+    hidden: { y: 0, opacity: 0 }, // Removed y: 30 (No bottom to up)
     visible: {
       y: 0,
       opacity: 1,
@@ -110,7 +110,7 @@ const AdminLogin = () => {
            animate={{ x: 0 }}      
            whileHover={{ scale: 1.05 }}
            transition={{ 
-             type: "spring", // "Limit buffer" / "Slide buffer" - Spring feels like a buffer
+             type: "spring", // "Limit buffer" / "Slide buffer"
              stiffness: 40,
              damping: 20,
              delay: 0.2
@@ -143,9 +143,9 @@ const AdminLogin = () => {
             y: translateY,
             perspective: 1000
           }}
-          className="w-full max-w-md space-y-12 -mt-16 lg:-mt-24" // Lifted up ("Widget lift")
+          className="w-full max-w-md space-y-12 -mt-16 lg:-mt-24" // Lifted up
         >
-            {/* Idle Animation Wrapper - REMOVED IDLE FLOAT (Bottom to Up removal) */}
+            {/* Wrapper div (No idle animation) */}
             <div> 
                 {/* Header */}
                 <motion.div variants={itemVariants} className="space-y-4">
@@ -195,7 +195,7 @@ const AdminLogin = () => {
 
                     {error && (
                         <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 10 }} // Error message can have a small pop
                             animate={{ opacity: 1, y: 0 }}
                             className="text-red-600 text-sm font-medium bg-red-50 p-4 rounded-xl border border-red-100"
                         >
