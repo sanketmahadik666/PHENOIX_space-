@@ -36,6 +36,13 @@
 
     --radius: 0.75rem;
 
+    /* Ethereal Chart Colors (Light) */
+    --chart-1: 173 58% 39%;   /* Teal 400 */
+    --chart-2: 231 48% 48%;   /* Indigo 600 */
+    --chart-3: 343 81% 58%;   /* Rose 500 */
+    --chart-4: 38 92% 50%;    /* Amber 400 */
+    --chart-5: 199 89% 48%;   /* Sky 400 */
+
     /* Custom Design Tokens */
     --gradient-hero: linear-gradient(
       135deg,
@@ -77,33 +84,45 @@
   }
 
   .dark {
-    --background: 210 30% 8%;
-    --foreground: 200 20% 95%;
+    /* Ethereal Dark Mode: Pure Black + Glass */
+    --background: 0 0% 0%; /* Pure Black */
+    --foreground: 210 20% 98%;
 
-    --card: 210 30% 12%;
-    --card-foreground: 200 20% 95%;
+    --card: 220 13% 10%; /* Deep Gray */
+    --card-foreground: 210 20% 98%;
 
-    --popover: 210 30% 12%;
-    --popover-foreground: 200 20% 95%;
+    --popover: 220 13% 10%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 190 85% 50%;
+    --primary: 190 85% 60%; /* Brighter Cyan */
     --primary-foreground: 210 30% 8%;
 
-    --secondary: 210 25% 18%;
-    --secondary-foreground: 200 20% 95%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 210 25% 18%;
-    --muted-foreground: 200 15% 60%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
 
-    --accent: 16 85% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 16 90% 65%;
+    --accent-foreground: 210 20% 98%;
 
     --destructive: 0 62% 30%;
-    --destructive-foreground: 200 20% 95%;
+    --destructive-foreground: 210 20% 98%;
 
-    --border: 210 25% 20%;
-    --input: 210 25% 20%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
     --ring: 190 85% 50%;
+
+    /* Ethereal Chart Colors (Dark) */
+    --chart-1: 173 58% 39%;   /* Teal 400 */
+    --chart-2: 234 89% 74%;   /* Indigo 400 */
+    --chart-3: 343 91% 68%;   /* Rose 400 */
+    --chart-4: 38 92% 50%;    /* Amber 400 */
+    --chart-5: 199 89% 48%;   /* Sky 400 */
+
+    /* Glassmorphism token helpers */
+    --glass-background: 0 0% 100% / 0.05;
+    --glass-border: 0 0% 100% / 0.1;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

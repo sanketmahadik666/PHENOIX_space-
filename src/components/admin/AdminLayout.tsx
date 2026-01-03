@@ -57,7 +57,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-card border-r border-border flex-col">
+      <aside className="hidden lg:flex w-64 bg-card/80 backdrop-blur-md border-r border-border flex-col">
         <div className="p-6 border-b border-border">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -118,7 +118,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex flex-col z-50 lg:hidden"
+              className="fixed left-0 top-0 bottom-0 w-64 bg-card/80 backdrop-blur-md border-r border-border flex flex-col z-50 lg:hidden"
             >
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <Link to="/" className="flex items-center gap-2">
@@ -177,7 +177,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Top Header */}
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 lg:px-6">
+        <header className="h-16 bg-card/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
           <div className="flex items-center gap-4">
             <button
               className="lg:hidden p-2 rounded-lg hover:bg-secondary"

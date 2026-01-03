@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { StatsChart } from "@/components/StatsChart";
 import {
   BookOpen,
   Calendar,
@@ -14,8 +15,6 @@ import {
   Clock,
 } from "lucide-react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -38,6 +37,7 @@ import {
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAnalyticsData } from "@/hooks/useSupabaseQuery";
+
 
 const statCards = [
   { title: "Total Courses", value: dashboardStats.totalCourses, icon: BookOpen, color: "text-primary" },
@@ -116,42 +116,7 @@ const AdminDashboard = () => {
         {/* Analytics Charts Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Time Series: Enquiries Over Time */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Enquiries Trend (Last 30 Days)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={analyticsData?.enquiriesTimeSeries || []}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis 
-                      dataKey="date" 
-                      className="text-xs" 
-                      tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, {month: 'short', day:'numeric'})}
-                    />
-                    <YAxis className="text-xs" />
-                    <Tooltip
-                      formatter={(value: number) => [value, "Enquiries"]}
-                      labelFormatter={(label) => new Date(label).toDateString()}
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="count"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={3}
-                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          <StatsChart />
 
           {/* Pie Chart: Enquiry Status Distribution */}
           <Card>
