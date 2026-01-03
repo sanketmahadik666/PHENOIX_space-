@@ -242,6 +242,7 @@ const AdminDashboard = () => {
                       paddingAngle={5}
                       dataKey="value"
                       stroke="none"
+                      activeShape={renderActiveShape}
                     >
                       {analyticsData?.enquiryStatusData.map((_entry: any, index: number) => (
                         <Cell 
