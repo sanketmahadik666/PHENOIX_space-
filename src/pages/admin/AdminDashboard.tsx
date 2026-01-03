@@ -28,6 +28,57 @@ import {
   ZAxis,
   Legend,
 } from "recharts";
+
+// 3D-like rendering components for Pie Chart
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text 
+      x={x} 
+      y={y} 
+      fill="white" 
+      textAnchor={x > cx ? 'start' : 'end'} 
+      dominantBaseline="central"
+      className="text-[10px] font-bold"
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
+
+// 3D Pie Effect: Custom Sector renderer to add "depth"
+const renderActiveShape = (props: any) => {
+  const { fill } = props;
+  
+  return (
+    <g>
+      {/* Shadow layer for 3D depth */}
+      <path
+        d={props.path}
+        fill={fill}
+        filter="url(#shadow)"
+        style={{ transform: 'translateY(4px)', opacity: 0.3 }}
+      />
+      {/* Main Sector */}
+      <path
+        d={props.path}
+        fill={fill}
+        stroke="#fff"
+        strokeWidth={2}
+      />
+      {/* Glossy overlay for 3D effect */}
+      <path
+        d={props.path}
+        fill="url(#glossy)"
+        style={{ mixBlendMode: 'overlay', opacity: 0.4 }}
+      />
+    </g>
+  );
+};
 import {
   dashboardStats,
   mockEnquiries,
@@ -124,25 +175,57 @@ const AdminDashboard = () => {
               <CardTitle className="text-lg">Enquiry Status Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
+              <div className="h-[300px] relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <defs>
+                      <filter id="shadow" height="200%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+                        <feOffset dx="0" dy="4" result="offsetblur" />
+                        <feComponentTransfer>
+                          <feFuncA type="linear" slope="0.5" />
+                        </feComponentTransfer>
+                        <feMerge>
+                          <feMergeNode />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      <linearGradient id="glossy" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="white" stopOpacity={0.8} />
+                        <stop offset="50%" stopColor="white" stopOpacity={0} />
+                        <stop offset="100%" stopColor="black" stopOpacity={0.2} />
+                      </linearGradient>
+                    </defs>
                     <Pie
                       data={analyticsData?.enquiryStatusData || []}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={renderCustomizedLabel}
                       outerRadius={100}
-                      fill="#8884d8"
+                      innerRadius={60}
+                      paddingAngle={5}
                       dataKey="value"
+                      stroke="none"
+                      activeShape={renderActiveShape}
                     >
                       {analyticsData?.enquiryStatusData.map((_entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={COLORS[index % COLORS.length]}
+                          className="transition-all duration-300 hover:opacity-80"
+                          style={{ filter: 'drop-shadow(0px 4px 4px rgba(0,0,0,0.25))' }}
+                        />
                       ))}
                     </Pie>
-                    <Tooltip />
-                    <Legend />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Legend verticalAlign="bottom" height={36}/>
                   </PieChart>
                 </ResponsiveContainer>
               </div>
