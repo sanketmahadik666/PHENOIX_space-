@@ -42,7 +42,7 @@ const AdminLogin = () => {
       const drift = new Drift(imgRef.current, {
         paneContainer: paneRef.current,
         inlinePane: false,
-        zoomFactor: 2.5,
+        zoomFactor: 1.5, // Interpreted as +0.5x magnification (1.5 total)
         touchDelay: 100,
         hoverBoundingBox: true, // Only trigger if hovering the image bounding box
         onShow: () => {
