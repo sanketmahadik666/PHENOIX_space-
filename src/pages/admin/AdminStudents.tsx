@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { mockStudents, Student } from "@/data/mockAdminData";
-import { Search, Users, Mail, Phone, Calendar, Download } from "lucide-react";
+import { Search, Users, Mail, Phone, Calendar, Download, Plus } from "lucide-react";
 import { downloadCSV } from "@/utils/exportUtils";
+import { useStudents } from "@/hooks/useSupabaseQuery";
+import { AddStudentModal } from "@/components/admin/AddStudentModal";
 
 const AdminStudents = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const { data: students = [], isLoading } = useStudents();
 
-  const filteredStudents = mockStudents.filter(
-    (student) =>
+  const filteredStudents = students.filter(
+    (student: any) =>
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -27,17 +30,21 @@ const AdminStudents = () => {
             <p className="text-muted-foreground">View and manage enrolled students.</p>
           </div>
           <div className="flex items-center gap-2">
+             <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Student
+            </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => downloadCSV(mockStudents, "students-export")}
+              onClick={() => downloadCSV(students, "students-export")}
             >
               <Download className="w-4 h-4 mr-2" />
               Export CSV
             </Button>
             <Badge variant="secondary" className="text-base px-4 py-2">
               <Users className="w-4 h-4 mr-2" />
-              {mockStudents.length} Total Students
+              {students.length} Total Students
             </Badge>
           </div>
         </div>
@@ -53,9 +60,12 @@ const AdminStudents = () => {
           />
         </div>
 
+        {/* Loading State */}
+        {isLoading && <div className="text-center py-8">Loading students...</div>}
+
         {/* Students Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredStudents.map((student) => (
+          {filteredStudents.map((student: any) => (
             <Card key={student.id}>
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
@@ -77,15 +87,8 @@ const AdminStudents = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
-                        <span>Joined {new Date(student.joinDate).toLocaleDateString()}</span>
+                        <span>Joined {new Date(student.join_date || student.created_at).toLocaleDateString()}</span>
                       </div>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-3">
-                      {student.enrolledCourses.map((course) => (
-                        <Badge key={course} variant="secondary" className="text-xs">
-                          {course}
-                        </Badge>
-                      ))}
                     </div>
                   </div>
                 </div>
@@ -93,6 +96,14 @@ const AdminStudents = () => {
             </Card>
           ))}
         </div>
+        
+        {filteredStudents.length === 0 && !isLoading && (
+            <div className="text-center py-12 text-muted-foreground">
+                No students found.
+            </div>
+        )}
+
+        <AddStudentModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
       </div>
     </AdminLayout>
   );

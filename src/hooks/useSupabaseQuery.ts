@@ -451,8 +451,134 @@ export const useAuditLogs = () => {
         .order("created_at", { ascending: false })
         .limit(100);
 
-      if (error) throw error;
       return data || [];
+    },
+  });
+};
+
+export const useAddStudent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (studentData: { name: string; email: string; phone: string; join_date?: string }) => {
+      const { data, error } = await supabase
+        .from("students")
+        .insert([studentData])
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+    },
+  });
+};
+
+export const useBulkEnrollStudents = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (students: any[]) => {
+      const results = {
+        success: 0,
+        duplicates: [] as string[],
+        errors: [] as string[]
+      };
+
+      for (const student of students) {
+        try {
+          // 1. Find Course ID (Case insensitive)
+          const { data: courses, error: courseError } = await supabase
+            .from("courses")
+            .select("id, name")
+            .ilike("name", student.course) 
+            .limit(1);
+
+          if (courseError || !courses || courses.length === 0) {
+            results.errors.push(`Row ${student.rowNumber}: Course '${student.course}' not found.`);
+            continue;
+          }
+          const courseId = courses[0].id;
+
+          // 2. Check/Insert Student
+          // Upsert to ensure we have the student ID (whether new or existing)
+          const { data: studentRecord, error: studentError } = await supabase
+            .from("students")
+            .upsert(
+              { 
+                name: student.name, 
+                email: student.email, 
+                phone: student.mobile 
+              }, 
+              { onConflict: 'email' }
+            )
+            .select("id")
+            .single();
+
+          if (studentError) {
+             results.errors.push(`Row ${student.rowNumber}: Failed to save student. ${studentError.message}`);
+             continue;
+          }
+          const studentId = studentRecord.id;
+
+          // 3. Find Active Batch for Course
+          let { data: batches } = await supabase
+            .from("batches")
+            .select("id")
+            .eq("course_id", courseId)
+            .eq("status", "active")
+            .order("start_date", { ascending: false })
+            .limit(1);
+
+          let batchId = batches?.[0]?.id;
+          
+          if (!batchId) {
+             // Fallback: look for upcoming
+             const { data: upcoming } = await supabase
+              .from("batches")
+              .select("id")
+              .eq("course_id", courseId)
+              .eq("status", "upcoming")
+              .order("start_date", { ascending: true })
+              .limit(1);
+             batchId = upcoming?.[0]?.id;
+          }
+
+          if (!batchId) {
+             results.errors.push(`Row ${student.rowNumber}: No active/upcoming batch found. Student saved but not enrolled.`);
+             continue; 
+          }
+
+          // 4. Enroll
+          const { error: enrollError } = await supabase
+            .from("enrollments")
+            .insert({
+              student_id: studentId,
+              batch_id: batchId,
+              completion_status: 'registered',
+              payment_status: 'pending'
+            });
+
+          if (enrollError) {
+            if (enrollError.code === '23505') { // Unique violation
+               results.duplicates.push(`Row ${student.rowNumber}: ${student.email} already in ${student.course}`);
+            } else {
+               results.errors.push(`Row ${student.rowNumber}: Enrollment failed. ${enrollError.message}`);
+            }
+          } else {
+            results.success++;
+          }
+
+        } catch (err: any) {
+           results.errors.push(`Row ${student.rowNumber}: System error. ${err.message}`);
+        }
+      }
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
   });
 };
