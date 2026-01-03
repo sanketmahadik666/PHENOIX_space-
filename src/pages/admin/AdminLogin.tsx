@@ -6,7 +6,6 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { Loader2, ArrowRight } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import Drift from "drift-zoom";
-import "drift-zoom/dist/drift-basic.min.css"; // Import minimal styles
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -42,9 +41,10 @@ const AdminLogin = () => {
       const drift = new Drift(imgRef.current, {
         paneContainer: paneRef.current,
         inlinePane: false,
-        zoomFactor: 1.5, // Interpreted as +0.5x magnification (1.5 total)
+        zoomFactor: 1.2, // "Decrease to 0.2" -> 1.2x
         touchDelay: 100,
-        hoverBoundingBox: true, // Only trigger if hovering the image bounding box
+        hoverBoundingBox: false, // "Remove blackish box that tracks cursor"
+        injectBaseStyles: false, // Ensure no default styles interfere
         onShow: () => {
              if (paneRef.current) paneRef.current.style.opacity = "1";
         },
