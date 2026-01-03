@@ -156,7 +156,7 @@ const AdminLogin = () => {
           {/* Drift Zoom Pane Container - Absolute Overlay */}
           <div 
             ref={paneRef}
-            className="absolute inset-0 z-20 pointer-events-none opacity-0 transition-opacity duration-300 bg-white"
+            className="absolute inset-0 z-20 pointer-events-none opacity-0 transition-opacity duration-500 bg-white" // Smoother fade (500ms)
             style={{ 
                 /* Ensures the pane fills the container and sits on top */ 
                 /* Drift generates the zoomed image inside this div */
@@ -166,7 +166,7 @@ const AdminLogin = () => {
           </div>
         </motion.div>
         
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-30" />
+        {/* REMOVED: Black Gradient Overlay */}
       </div>
 
       {/* LOGIN FORM SECTION - Interactive Container */}
