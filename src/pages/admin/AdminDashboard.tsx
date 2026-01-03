@@ -21,16 +21,23 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  ScatterChart,
+  Scatter,
+  ZAxis,
+  Legend,
 } from "recharts";
 import {
   dashboardStats,
   mockEnquiries,
   mockCourses,
   mockBatches,
-  mockRevenueData,
 } from "@/data/mockAdminData";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAnalyticsData } from "@/hooks/useSupabaseQuery";
 
 const statCards = [
   { title: "Total Courses", value: dashboardStats.totalCourses, icon: BookOpen, color: "text-primary" },
@@ -40,6 +47,8 @@ const statCards = [
   { title: "Revenue (AED)", value: `${(dashboardStats.revenueThisMonth / 1000).toFixed(0)}K`, icon: DollarSign, color: "text-emerald-600" },
   { title: "Enrolled This Mo.", value: dashboardStats.studentsEnrolledThisMonth, icon: UserPlus, color: "text-purple-600" },
 ];
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -57,9 +66,20 @@ const getStatusColor = (status: string) => {
 };
 
 const AdminDashboard = () => {
+  const { data: analyticsData, isLoading } = useAnalyticsData();
+  
   const recentEnquiries = mockEnquiries.slice(0, 7);
   const topCourses = [...mockCourses].sort((a, b) => b.registrations - a.registrations).slice(0, 5);
-  const upcomingBatches = mockBatches.filter((b) => b.status === "upcoming" || b.status === "active").slice(0, 5);
+  // Fallback to mock batches if hook data is loading or empty, but ideally we use the hook data for the event list
+  const upcomingBatches = analyticsData?.upcomingBatches.length ? analyticsData.upcomingBatches : mockBatches.filter((b) => b.status === "upcoming" || b.status === "active").slice(0, 5);
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-screen">Loading dashboard analytics...</div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -93,9 +113,187 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Enquiries and Top Courses */}
+        {/* Analytics Charts Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Recent Enquiries */}
+          {/* Time Series: Enquiries Over Time */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Enquiries Trend (Last 30 Days)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={analyticsData?.enquiriesTimeSeries || []}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis 
+                      dataKey="date" 
+                      className="text-xs" 
+                      tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, {month: 'short', day:'numeric'})}
+                    />
+                    <YAxis className="text-xs" />
+                    <Tooltip
+                      formatter={(value: number) => [value, "Enquiries"]}
+                      labelFormatter={(label) => new Date(label).toDateString()}
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pie Chart: Enquiry Status Distribution */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Enquiry Status Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={analyticsData?.enquiryStatusData || []}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {analyticsData?.enquiryStatusData.map((_entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Top Performing Courses */}
+        <div className="grid lg:grid-cols-1 gap-6">
+            <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Top Performing Courses</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topCourses.map((course, index) => (
+                  <div
+                    key={course.id}
+                    className="flex items-center gap-4 p-3 bg-secondary/30 rounded-lg"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{course.name}</p>
+                      <p className="text-xs text-muted-foreground">{course.category}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-sm">{course.registrations}</p>
+                      <p className="text-xs text-muted-foreground">registrations</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+           {/* Scatter Plot: Course Price vs Batches */}
+           <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Course Insights (Price vs Popularity)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                     <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" dataKey="price" name="Price" unit=" AED" className="text-xs" />
+                    <YAxis type="number" dataKey="batches" name="Batches" className="text-xs" />
+                    <ZAxis dataKey="z" range={[64, 144]} name="Score" />
+                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                    <Legend />
+                    <Scatter name="Courses" data={analyticsData?.courseMetrics || []} fill="#8884d8">
+                      {analyticsData?.courseMetrics.map((_entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Scatter>
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Event Series: Upcoming Batches Timeline */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <CardTitle className="text-lg">Upcoming Batches Timeline</CardTitle>
+              <Link to="/admin/batches">
+                <Button variant="ghost" size="sm" className="gap-1">
+                  View All <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Course</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Start Date</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Seats</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {upcomingBatches.map((batch: any, i: number) => (
+                      <tr key={i} className="border-b border-border/50 hover:bg-secondary/30">
+                        <td className="py-3 px-4 text-sm font-medium">{batch.courseName || batch.course_name}</td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">
+                          {new Date(batch.startDate || batch.start_date).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          <span className="font-medium">{batch.enrolledSeats || batch.enrolled_seats}</span>
+                          <span className="text-muted-foreground">/{batch.maxSeats || batch.max_seats}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge
+                            variant={batch.status === "active" ? "default" : "secondary"}
+                            className="capitalize"
+                          >
+                            {batch.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Enquiries (Lower priority) */}
+        <div className="grid lg:grid-cols-1 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-4">
               <CardTitle className="text-lg">Recent Enquiries</CardTitle>
@@ -132,123 +330,7 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Top Performing Courses */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Top Performing Courses</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {topCourses.map((course, index) => (
-                  <div
-                    key={course.id}
-                    className="flex items-center gap-4 p-3 bg-secondary/30 rounded-lg"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{course.name}</p>
-                      <p className="text-xs text-muted-foreground">{course.category}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-sm">{course.registrations}</p>
-                      <p className="text-xs text-muted-foreground">registrations</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </div>
-
-        {/* Revenue Chart */}
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Revenue Overview (Last 6 Months)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockRevenueData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis
-                    className="text-xs"
-                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => [`${value.toLocaleString()} AED`, "Revenue"]}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={3}
-                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Batches */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <CardTitle className="text-lg">Upcoming Batches</CardTitle>
-            <Link to="/admin/batches">
-              <Button variant="ghost" size="sm" className="gap-1">
-                View All <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Course</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Start Date</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Seats</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Instructor</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {upcomingBatches.map((batch) => (
-                    <tr key={batch.id} className="border-b border-border/50 hover:bg-secondary/30">
-                      <td className="py-3 px-4 text-sm font-medium">{batch.courseName}</td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">
-                        {new Date(batch.startDate).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 text-sm">
-                        <span className="font-medium">{batch.enrolledSeats}</span>
-                        <span className="text-muted-foreground">/{batch.maxSeats}</span>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">{batch.instructor}</td>
-                      <td className="py-3 px-4">
-                        <Badge
-                          variant={batch.status === "active" ? "default" : "secondary"}
-                          className="capitalize"
-                        >
-                          {batch.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </AdminLayout>
   );

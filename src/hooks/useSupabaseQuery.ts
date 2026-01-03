@@ -364,3 +364,95 @@ export const useDashboardStats = () => {
     },
   });
 };
+
+// Hook for analytics data
+export const useAnalyticsData = () => {
+  return useQuery({
+    queryKey: ["analytics-data"],
+    queryFn: async () => {
+      // Fetch enquiries for pie chart and time series
+      const { data: enquiries, error: enquiriesError } = await supabase
+        .from("enquiries")
+        .select("status, enquiry_date");
+
+      if (enquiriesError) throw enquiriesError;
+
+      // Group enquiries by status for Pie Chart
+      const enquiryStatusMap = enquiries.reduce((acc: any, curr) => {
+        acc[curr.status] = (acc[curr.status] || 0) + 1;
+        return acc;
+      }, {});
+
+      const enquiryStatusData = Object.keys(enquiryStatusMap).map((status) => ({
+        name: status,
+        value: enquiryStatusMap[status],
+      }));
+
+      // Group enquiries by date for Time Series (last 30 days)
+      const last30Days = new Array(30).fill(0).map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        return d.toISOString().split("T")[0];
+      }).reverse();
+
+      const enquiriesTimeSeries = last30Days.map(date => {
+        const count = enquiries.filter(e => e.enquiry_date && e.enquiry_date.startsWith(date)).length;
+        return { date, count };
+      });
+
+      // Fetch courses for Scatter Plot
+      const { data: courses, error: coursesError } = await supabase
+        .from("courses")
+        .select("name, price, batches_count, duration, category")
+        .gt("price", 0); // specific filter to ensure meaningful scatter plot
+
+      if (coursesError) throw coursesError;
+
+      // Format course data for Scatter Plot (Price vs Batches data)
+      const courseMetrics = courses.map(c => ({
+        name: c.name,
+        price: c.price,
+        batches: c.batches_count || 0,
+        category: c.category,
+        z: 100 // size bubble
+      }));
+
+      // Fetch upcoming batches for Event Series
+      const { data: batches, error: batchesError } = await supabase
+        .from("batches")
+        .select("course_name, start_date, status, enrolled_seats, max_seats")
+        .gte("start_date", new Date().toISOString().split('T')[0])
+        .order("start_date", { ascending: true })
+        .limit(10);
+      
+      if (batchesError) throw batchesError;
+
+      return {
+        enquiryStatusData,
+        enquiriesTimeSeries,
+        courseMetrics,
+        upcomingBatches: batches || []
+      };
+    },
+  });
+};
+
+// Hook for fetching audit logs
+export const useAuditLogs = () => {
+  return useQuery({
+    queryKey: ["audit-logs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audit_logs")
+        .select(`
+          *,
+          admin_users (name)
+        `)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+};

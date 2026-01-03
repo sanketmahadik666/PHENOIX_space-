@@ -29,6 +29,7 @@ const sidebarLinks = [
   { name: "Enquiries", href: "/admin/enquiries", icon: MessageSquare },
   { name: "Students", href: "/admin/students", icon: Users },
   { name: "Announcements", href: "/admin/announcements", icon: Megaphone },
+  { name: "Audit Logs", href: "/admin/audit-logs", icon: Users }, // Using Users icon temporarily or Shield if available
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
