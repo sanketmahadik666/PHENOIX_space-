@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { Loader2, ArrowRight } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
+import Drift from "drift-zoom";
+import "drift-zoom/dist/drift-basic.min.css"; // Import minimal styles
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -30,6 +32,32 @@ const AdminLogin = () => {
   const translateY = useTransform(y, [-300, 300], [-20, 20]);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Drift Zoom Refs
+  const imgRef = useRef<HTMLImageElement>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current && paneRef.current) {
+      const drift = new Drift(imgRef.current, {
+        paneContainer: paneRef.current,
+        inlinePane: false,
+        zoomFactor: 2.5,
+        touchDelay: 100,
+        hoverBoundingBox: true, // Only trigger if hovering the image bounding box
+        onShow: () => {
+             if (paneRef.current) paneRef.current.style.opacity = "1";
+        },
+        onHide: () => {
+             if (paneRef.current) paneRef.current.style.opacity = "0";
+        }
+      });
+
+      return () => {
+        drift.destroy();
+      };
+    }
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
@@ -103,26 +131,42 @@ const AdminLogin = () => {
       />
 
       {/* HERO IMAGE SECTION */}
-      <div className="relative w-full lg:w-1/2 aspect-[3/4] lg:aspect-auto lg:h-screen overflow-hidden order-1 lg:order-1">
+      <div className="relative w-full lg:w-1/2 aspect-[3/4] lg:aspect-auto lg:h-screen order-1 lg:order-1 flex items-center justify-center overflow-hidden">
         <motion.div
-           className="w-full h-full"
+           className="w-full h-full relative"
            initial={{ x: "100%" }} 
            animate={{ x: 0 }}      
-           whileHover={{ scale: 1.05 }}
+           whileHover={{ scale: 1.02 }} // Slight scale on hover
            transition={{ 
-             type: "spring", // "Limit buffer" / "Slide buffer"
+             type: "spring", 
              stiffness: 40,
              damping: 20,
              delay: 0.2
            }} 
         >
+          {/* Main Image */}
           <img 
+            ref={imgRef}
             src="/supposina.webp" 
             alt="Supposina Art" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover relative z-10"
+            data-zoom="/supposina.webp" // Use same image for zoom
           />
+          
+          {/* Drift Zoom Pane Container - Absolute Overlay */}
+          <div 
+            ref={paneRef}
+            className="absolute inset-0 z-20 pointer-events-none opacity-0 transition-opacity duration-300 bg-white"
+            style={{ 
+                /* Ensures the pane fills the container and sits on top */ 
+                /* Drift generates the zoomed image inside this div */
+            }} 
+          >
+            {/* Drift will inject the zoomed image here */}
+          </div>
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-30" />
       </div>
 
       {/* LOGIN FORM SECTION - Interactive Container */}
@@ -195,7 +239,7 @@ const AdminLogin = () => {
 
                     {error && (
                         <motion.div 
-                            initial={{ opacity: 0, y: 10 }} // Error message can have a small pop
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="text-red-600 text-sm font-medium bg-red-50 p-4 rounded-xl border border-red-100"
                         >
