@@ -11,10 +11,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, Phone, Mail, MessageSquare, Clock, Download } from "lucide-react";
+import { Search, Phone, Mail, MessageSquare, Clock, Download, Reply } from "lucide-react";
 import { toast } from "sonner";
 import { useEnquiries, useUpdateEnquiry } from "@/hooks/useSupabaseQuery";
 import { downloadCSV } from "@/utils/exportUtils";
+import { ComposeEmailModal } from "@/components/admin/ComposeEmailModal";
 
 interface Enquiry {
   id: string;
@@ -55,6 +56,11 @@ const AdminEnquiries = () => {
   const updateEnquiryMutation = useUpdateEnquiry();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [replyingTo, setReplyingTo] = useState<Enquiry | null>(null);
+
+  const handleReply = (enquiry: Enquiry) => {
+    setReplyingTo(enquiry);
+  };
 
   const filteredEnquiries = enquiries.filter((enquiry) => {
     const matchesSearch =
