@@ -11,11 +11,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, Phone, Mail, MessageSquare, Clock, Download, Reply } from "lucide-react";
+import { Search, Phone, Mail, MessageSquare, Clock, Download, Reply, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useEnquiries, useUpdateEnquiry } from "@/hooks/useSupabaseQuery";
 import { downloadCSV } from "@/utils/exportUtils";
 import { ComposeEmailModal } from "@/components/admin/ComposeEmailModal";
+import { AddEnquiryModal } from "@/components/admin/AddEnquiryModal";
 
 interface Enquiry {
   id: string;
@@ -57,6 +58,7 @@ const AdminEnquiries = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [replyingTo, setReplyingTo] = useState<Enquiry | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleReply = (enquiry: Enquiry) => {
     setReplyingTo(enquiry);
@@ -103,6 +105,10 @@ const AdminEnquiries = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Enquiry
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -238,6 +244,11 @@ const AdminEnquiries = () => {
         onClose={() => setReplyingTo(null)}
         recipientEmail={replyingTo?.email || ""}
         recipientName={replyingTo?.name || ""}
+      />
+
+      <AddEnquiryModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
       />
     </AdminLayout>
   );

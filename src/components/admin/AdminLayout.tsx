@@ -130,7 +130,10 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                     <span className="text-xs font-medium text-muted-foreground -mt-1">ADMIN</span>
                   </div>
                 </Link>
-                <button onClick={() => setSidebarOpen(false)}>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  aria-label="Close sidebar"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -179,6 +182,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             <button
               className="lg:hidden p-2 rounded-lg hover:bg-secondary"
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -186,7 +190,10 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 rounded-lg hover:bg-secondary">
+            <button
+              className="relative p-2 rounded-lg hover:bg-secondary"
+              aria-label="View notifications"
+            >
               <Bell className="w-5 h-5 text-muted-foreground" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
             </button>
