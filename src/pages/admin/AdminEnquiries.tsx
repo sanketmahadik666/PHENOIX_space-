@@ -178,6 +178,18 @@ const AdminEnquiries = () => {
                         <p className="text-sm">{enquiry.message}</p>
                       </div>
                     )}
+                    
+                    <div className="mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => handleReply(enquiry)}
+                      >
+                        <Reply className="w-4 h-4" />
+                        Reply via Email
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -214,6 +226,13 @@ const AdminEnquiries = () => {
           </Card>
         )}
       </div>
+
+      <ComposeEmailModal
+        isOpen={!!replyingTo}
+        onClose={() => setReplyingTo(null)}
+        recipientEmail={replyingTo?.email || ""}
+        recipientName={replyingTo?.name || ""}
+      />
     </AdminLayout>
   );
 };
