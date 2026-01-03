@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,9 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Phone, Mail, MessageSquare, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Phone, Mail, MessageSquare, Clock, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useEnquiries, useUpdateEnquiry } from "@/hooks/useSupabaseQuery";
+import { downloadCSV } from "@/utils/exportUtils";
 
 interface Enquiry {
   id: string;
@@ -94,9 +97,19 @@ const AdminEnquiries = () => {
               Manage and respond to customer enquiries.
             </p>
           </div>
-          <Badge variant="secondary" className="text-base px-4 py-2">
-            {pendingCount} Pending
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadCSV(enquiries, "enquiries-export")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Badge variant="secondary" className="text-base px-4 py-2">
+              {pendingCount} Pending
+            </Badge>
+          </div>
         </div>
 
         {/* Filters */}

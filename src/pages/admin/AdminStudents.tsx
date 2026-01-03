@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { mockStudents, Student } from "@/data/mockAdminData";
-import { Search, Users, Mail, Phone, Calendar } from "lucide-react";
+import { Search, Users, Mail, Phone, Calendar, Download } from "lucide-react";
+import { downloadCSV } from "@/utils/exportUtils";
 
 const AdminStudents = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,10 +26,20 @@ const AdminStudents = () => {
             <h1 className="text-2xl font-bold">Students</h1>
             <p className="text-muted-foreground">View and manage enrolled students.</p>
           </div>
-          <Badge variant="secondary" className="text-base px-4 py-2">
-            <Users className="w-4 h-4 mr-2" />
-            {mockStudents.length} Total Students
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadCSV(mockStudents, "students-export")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Badge variant="secondary" className="text-base px-4 py-2">
+              <Users className="w-4 h-4 mr-2" />
+              {mockStudents.length} Total Students
+            </Badge>
+          </div>
         </div>
 
         {/* Search */}
