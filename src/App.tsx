@@ -22,6 +22,7 @@ const AdminStudents = lazy(() => import("./pages/admin/AdminStudents"));
 const AdminAnnouncements = lazy(() => import("./pages/admin/AdminAnnouncements"));
 const AdminAuditLogs = lazy(() => import("./pages/admin/AdminAuditLogs"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const ChronosLanding = lazy(() => import("./pages/ChronosLanding"));
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/corporate" element={<Corporate />} />
               <Route path="/calendar" element={<TrainingCalendar />} />
+              <Route path="/chronos" element={<ChronosLanding />} />
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
