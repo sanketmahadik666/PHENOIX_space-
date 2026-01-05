@@ -1,9 +1,12 @@
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Wind, BookOpen, Coffee, Sun } from "lucide-react";
 import { FadeIn } from "../components/enso/FadeIn";
 import { Section } from "../components/enso/Section";
 import { ShojiCard } from "../components/enso/ShojiCard";
+import { useDesignTokens } from "../hooks/useDesignTokens";
+import { useScale } from "../hooks/useScale";
+import { ResponsiveGrid } from "../components/ResponsiveGrid";
 
 const JapandiLanding = () => {
     // Parallax logic for Hero
@@ -12,8 +15,9 @@ const JapandiLanding = () => {
     const opacityHero = useTransform(scrollY, [0, 400], [1, 0]);
 
     // Typography styles
-    const fontSerif = "font-serif"; // Using default serif, in a real project would be Playfair/Merriweather
-    const fontSans = "font-sans"; // Default sans
+    // Typography styles & Tokens
+    const { font } = useDesignTokens();
+    const scale = useScale(0.9, 1.1); // Subtle scaling for the hero text
 
     return (
         <div className={`min-h-screen bg-[#EBE9E4] text-[#2C2C2C] selection:bg-[#C47F6B] selection:text-white overflow-hidden`}>
@@ -23,7 +27,7 @@ const JapandiLanding = () => {
 
             {/* Navigation (Minimal) */}
             <nav className="fixed top-0 w-full p-8 md:px-16 flex justify-between items-center z-40 mix-blend-darken bg-[#EBE9E4]/80 backdrop-blur-sm">
-                <span className={`${fontSerif} text-xl tracking-widest font-bold text-[#2C2C2C]`}>PHOENIX.</span>
+                <span className={`${font.serif} text-xl tracking-widest font-bold text-[#2C2C2C]`}>PHOENIX.</span>
                 <div className="hidden md:flex gap-12 text-sm font-medium tracking-wide text-[#5c5c5c]">
                     <a href="#philosophy" className="hover:text-[#C47F6B] transition-colors duration-500">Our Ethos</a>
                     <a href="#paths" className="hover:text-[#C47F6B] transition-colors duration-500">Mastery</a>
@@ -39,19 +43,19 @@ const JapandiLanding = () => {
                 <section className="relative min-h-screen flex items-center justify-center pt-20 px-6">
                     <motion.div 
                         className="text-center z-10 max-w-4xl"
-                        style={{ y: y1, opacity: opacityHero }}
+                        style={{ y: y1, opacity: opacityHero, scale }}
                     >
                         <FadeIn>
                             <span className="block text-[#8DA399] tracking-[0.3em] text-xs uppercase mb-6 font-medium">Dubai's Premier Institute</span>
                         </FadeIn>
                         <FadeIn delay={0.2}>
-                            <h1 className={`${fontSerif} text-5xl md:text-8xl leading-none font-medium mb-8 text-[#2C2C2C]`}>
+                            <h1 className={`${font.serif} text-5xl md:text-8xl leading-none font-medium mb-8 text-[#2C2C2C]`}>
                                 Elegant <br/>
                                 <span className="italic font-light text-[#5c5c5c]">Excellence</span>
                             </h1>
                         </FadeIn>
                         <FadeIn delay={0.4}>
-                            <p className={`${fontSans} text-lg md:text-xl text-[#5c5c5c] max-w-lg mx-auto leading-loose font-light`}>
+                            <p className={`${font.sans} text-lg md:text-xl text-[#5c5c5c] max-w-lg mx-auto leading-loose font-light`}>
                                 Since 2010, we have curated a sanctuary for professional growth. Where ambition meets the quiet discipline of true mastery.
                             </p>
                         </FadeIn>
@@ -77,7 +81,7 @@ const JapandiLanding = () => {
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
                         <div className="md:col-span-4 sticky top-32">
                             <FadeIn>
-                                <h2 className={`${fontSerif} text-4xl mb-6 text-[#2C2C2C]`}>The <span className="text-[#C47F6B]">Elegant</span> Way</h2>
+                                <h2 className={`${font.serif} text-4xl mb-6 text-[#2C2C2C]`}>The <span className="text-[#C47F6B]">Elegant</span> Way</h2>
                                 <p className="text-[#5c5c5c] leading-relaxed mb-8">
                                     True expertise is not rushed. Built on a decade of trust, our approach fuses the disciplined structure of KHDA-certified pedagogy with an environment that respects your journey.
                                 </p>
@@ -87,32 +91,23 @@ const JapandiLanding = () => {
                             </FadeIn>
                         </div>
                         
-                        <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <ShojiCard 
-                                icon={Wind} 
-                                title="Vision" 
-                                desc="To be the leading light in UAE's professional landscape, guiding you with clarity and purpose."
-                                delay={0.2}
-                            />
-                            <ShojiCard 
-                                icon={BookOpen} 
-                                title="Expertise" 
-                                desc="50+ Expert Trainers dedicated to a curriculum that honors both tradition and innovation."
-                                delay={0.4}
-                            />
-                            <ShojiCard 
-                                icon={Coffee} 
-                                title="Community" 
-                                desc="Join 10,000+ alumni in a space that values collaboration as much as individual achievement."
-                                delay={0.6}
-                            />
-                            <ShojiCard 
-                                icon={Sun} 
-                                title="Impact" 
-                                desc="Empowering organization to drive positive change through sustainable, high-quality learning."
-                                delay={0.8}
-                            />
-                        </div>
+                        <ResponsiveGrid minItemWidth={280} gap={24} className="md:col-span-8">
+                            {[
+                                { icon: Wind, title: "Vision", desc: "To be the leading light in UAE's professional landscape, guiding you with clarity and purpose." },
+                                { icon: BookOpen, title: "Expertise", desc: "50+ Expert Trainers dedicated to a curriculum that honors both tradition and innovation." },
+                                { icon: Coffee, title: "Community", desc: "Join 10,000+ alumni in a space that values collaboration as much as individual achievement." },
+                                { icon: Sun, title: "Impact", desc: "Empowering organization to drive positive change through sustainable, high-quality learning." }
+                            ].map((item, i) => (
+                                <FadeIn key={item.title} index={i} baseDelay={0.15}>
+                                    <ShojiCard 
+                                        icon={item.icon} 
+                                        title={item.title} 
+                                        desc={item.desc}
+                                        delay={0} // Handled by FadeIn wrapper now for cleaner composition
+                                    />
+                                </FadeIn>
+                            ))}
+                        </ResponsiveGrid>
                     </div>
                 </Section>
 
@@ -133,33 +128,31 @@ const JapandiLanding = () => {
                     <FadeIn>
                         <div className="text-center mb-20">
                             <span className="text-[#8DA399] uppercase tracking-widest text-xs font-semibold">Curated Paths</span>
-                            <h2 className={`${fontSerif} text-4xl mt-4`}>Craft Your <span className="italic font-normal">Trajectory</span></h2>
+                            <h2 className={`${font.serif} text-4xl mt-4`}>Craft Your <span className="italic font-normal">Trajectory</span></h2>
                         </div>
                     </FadeIn>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-y-16 gap-x-12">
+                    <ResponsiveGrid minItemWidth={300} gap={48}>
                          {[
                             { title: "Strategic Leadership", meta: "12 Weeks • Executive", color: "bg-[#D6D3CD]" },
                             { title: "Design Systems", meta: "8 Weeks • Advanced", color: "bg-[#E0E5E2]" },
                             { title: "Mindful Management", meta: "6 Weeks • Core", color: "bg-[#E8DCC4]" }
                         ].map((item, i) => (
-                            <motion.div 
-                                key={i}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 1, delay: i * 0.2 }}
-                                className="group cursor-pointer"
-                            >
-                                <div className={`aspect-[4/5] ${item.color} mb-6 relative overflow-hidden`}>
-                                     {/* Subtle hover effect on image block */}
-                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-700"></div>
-                                </div>
-                                <div className="text-xs text-[#8DA399] font-medium tracking-wide mb-2 uppercase">{item.meta}</div>
-                                <h3 className={`${fontSerif} text-2xl group-hover:text-[#C47F6B] transition-colors duration-500`}>{item.title}</h3>
-                            </motion.div>
+                            <FadeIn key={i} index={i} baseDelay={0.2}>
+                                <motion.div 
+                                    className="group cursor-pointer"
+                                    whileHover={{ y: -10 }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    <div className={`aspect-[4/5] ${item.color} mb-6 relative overflow-hidden`}>
+                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-700"></div>
+                                    </div>
+                                    <div className="text-xs text-[#8DA399] font-medium tracking-wide mb-2 uppercase">{item.meta}</div>
+                                    <h3 className={`${font.serif} text-2xl group-hover:text-[#C47F6B] transition-colors duration-500`}>{item.title}</h3>
+                                </motion.div>
+                            </FadeIn>
                         ))}
-                    </div>
+                    </ResponsiveGrid>
                 </Section>
 
                 {/* CTA */}
@@ -172,7 +165,7 @@ const JapandiLanding = () => {
 
                     <div className="relative z-10 max-w-2xl mx-auto">
                         <FadeIn>
-                            <h2 className={`${fontSerif} text-4xl md:text-6xl mb-8`}>Elevate your potential.</h2>
+                            <h2 className={`${font.serif} text-4xl md:text-6xl mb-8`}>Elevate your potential.</h2>
                             <p className="text-[#EBE9E4]/60 text-lg leading-relaxed mb-12 font-light">
                                 "To empower individuals and organizations with the knowledge and skills they need to succeed."
                             </p>
