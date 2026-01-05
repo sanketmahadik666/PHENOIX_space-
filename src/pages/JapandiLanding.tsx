@@ -1,45 +1,9 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { ArrowRight, Wind, BookOpen, Coffee, Sun } from "lucide-react";
-
-// --- Design Tokens (Inline for simplicity, ideally in tailwind config) ---
-// Stone: #EBE9E4
-// Charcoal: #2C2C2C
-// Sage: #8DA399
-// Terracotta: #C47F6B
-// Paper White: #F5F5F0
-
-const Section = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <section className={`py-24 px-8 md:px-24 max-w-[1600px] mx-auto ${className}`}>
-    {children}
-  </section>
-);
-
-const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-10%" }}
-    transition={{ duration: 1.2, delay, ease: [0.22, 1, 0.36, 1] }} // Custom "soft" easing
-  >
-    {children}
-  </motion.div>
-);
-
-const ShojiCard = ({ title, desc, icon: Icon, delay }: { title: string, desc: string, icon: any, delay: number }) => (
-    <motion.div 
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.5, delay, ease: "easeOut" }}
-        className="group relative bg-[#F5F5F0] p-10 border-l mb-8 md:mb-0 hover:shadow-xl transition-all duration-700 ease-out border-[#E5E5E5] hover:border-[#8DA399]"
-    >
-        <div className="absolute top-0 left-0 w-[2px] h-0 bg-[#8DA399] group-hover:h-full transition-all duration-1000 ease-in-out"></div>
-        <Icon className="w-8 h-8 text-[#8DA399] mb-6 opacity-80 group-hover:scale-110 transition-transform duration-700" strokeWidth={1.5} />
-        <h3 className="font-serif text-2xl text-[#2C2C2C] mb-4 tracking-tight">{title}</h3>
-        <p className="font-sans text-[#5c5c5c] leading-relaxed font-light">{desc}</p>
-    </motion.div>
-);
+import { FadeIn } from "../components/enso/FadeIn";
+import { Section } from "../components/enso/Section";
+import { ShojiCard } from "../components/enso/ShojiCard";
 
 const JapandiLanding = () => {
     // Parallax logic for Hero
