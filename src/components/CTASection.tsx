@@ -18,6 +18,12 @@ export const CTASection = () => {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent rounded-full blur-3xl" />
           </div>
 
+
+
+
+
+
+
           <div className="relative z-10 p-8 md:p-16 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Learn & Grow with Experts!
